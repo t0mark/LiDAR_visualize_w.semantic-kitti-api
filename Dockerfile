@@ -27,9 +27,6 @@ RUN useradd -ms /bin/bash developer
 USER developer
 WORKDIR /home/developer/api
 
-# 코드 복사
-# COPY --chown=developer:developer . /home/developer/semantic-kitti-api
-
 # PYTHONPATH 설정
 # ENV PYTHONPATH=/home/developer/semantic-kitti-api
 ENV PYTHONPATH=/home/developer/api

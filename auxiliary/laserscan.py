@@ -190,25 +190,27 @@ class SemLaserScan(LaserScan):
   EXTENSIONS_LABEL = ['.label']
 
   def __init__(self, sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0):
-    super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
-    self.reset()
+      super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
+      self.reset()
 
-    # make semantic colors
-    max_sem_key = 0
-    for key, data in sem_color_dict.items():
-      if key + 1 > max_sem_key:
-        max_sem_key = key + 1
-    self.sem_color_lut = np.zeros((max_sem_key + 100, 3), dtype=np.float32)
-    for key, value in sem_color_dict.items():
-      self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
+      # make semantic colors - 충분히 큰 크기로 설정
+      max_sem_key = 260  # 최대 레이블 값(259)보다 크게 설정
+      self.sem_color_lut = np.zeros((max_sem_key, 3), dtype=np.float32)
+      
+      # 기본값으로 모든 색상을 검정색으로 설정
+      self.sem_color_lut[:] = np.array([0, 0, 0], np.float32)
+      
+      # config에서 정의한 색상만 설정
+      for key, value in sem_color_dict.items():
+        self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
 
-    # make instance colors
-    max_inst_id = 100000
-    self.inst_color_lut = np.random.uniform(low=0.0,
+      # make instance colors - 이 부분이 누락되었습니다
+      max_inst_id = 100000
+      self.inst_color_lut = np.random.uniform(low=0.0,
                                             high=1.0,
                                             size=(max_inst_id, 3))
-    # force zero to a gray-ish color
-    self.inst_color_lut[0] = np.full((3), 0.1)
+      # force zero to a gray-ish color
+      self.inst_color_lut[0] = np.full((3), 0.1)
 
   def reset(self):
     """ Reset scan members. """

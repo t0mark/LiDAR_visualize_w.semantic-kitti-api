@@ -1,74 +1,17 @@
 # This file is covered by the LICENSE file in the root of this project.
 labels: 
-  0 : "unlabeled"
-  1 : "outlier"
-  10: "car"
-  11: "bicycle"
-  13: "bus"
-  15: "motorcycle"
-  16: "on-rails"
-  18: "truck"
-  20: "other-vehicle"
-  30: "person"
-  31: "bicyclist"
-  32: "motorcyclist"
-  40: "road"
-  44: "parking"
-  48: "sidewalk"
-  49: "other-ground"
-  50: "building"
-  51: "fence"
-  52: "other-structure"
-  60: "lane-marking"
-  70: "vegetation"
-  71: "trunk"
-  72: "terrain"
-  80: "pole"
-  81: "traffic-sign"
-  99: "other-object"
-  252: "moving-car"
-  253: "moving-bicyclist"
-  254: "moving-person"
-  255: "moving-motorcyclist"
-  256: "moving-on-rails"
-  257: "moving-bus"
-  258: "moving-truck"
-  259: "moving-other-vehicle"
+  0: "car"
+  1: "other-vehicle"
+  2: "road"
+  3: "sidewalk"
+  4: "unlabeled"
+# 색상 매핑 설정
 color_map: # bgr
-  0 : [0, 0, 0]
-  1 : [0, 0, 255]
-  10: [245, 150, 100]
-  11: [245, 230, 100]
-  13: [250, 80, 100]
-  15: [150, 60, 30]
-  16: [255, 0, 0]
-  18: [180, 30, 80]
-  20: [255, 0, 0]
-  30: [30, 30, 255]
-  31: [200, 40, 255]
-  32: [90, 30, 150]
-  40: [255, 0, 255]
-  44: [255, 150, 255]
-  48: [75, 0, 75]
-  49: [75, 0, 175]
-  50: [0, 200, 255]
-  51: [50, 120, 255]
-  52: [0, 150, 255]
-  60: [170, 255, 150]
-  70: [0, 175, 0]
-  71: [0, 60, 135]
-  72: [80, 240, 150]
-  80: [150, 240, 255]
-  81: [0, 0, 255]
-  99: [255, 255, 50]
-  252: [245, 150, 100]
-  256: [255, 0, 0]
-  253: [200, 40, 255]
-  254: [30, 30, 255]
-  255: [90, 30, 150]
-  257: [250, 80, 100]
-  258: [180, 30, 80]
-  259: [255, 0, 0]
+  0: [255, 0, 0]    # 진한 파란색 (BGR 형식)
+  1: [0, 255, 0]    # 진한 초록색 (BGR 형식)
+  2: [0, 0, 255]    # 진한 빨간색 (BGR 형식)
+  3: [0, 255, 255]  # 진한 노란색 (BGR 형식)
+  4: [255, 255, 255]  # 흰색 (BGR 형식)
 content: # as a ratio with the total number of points
   0: 0.018889854628292943
   1: 0.0002937197336781505
@@ -107,82 +50,52 @@ content: # as a ratio with the total number of points
 # classes that are indistinguishable from single scan or inconsistent in
 # ground truth are mapped to their closest equivalent
 learning_map:
-  0 : 0     # "unlabeled"
-  1 : 0     # "outlier" mapped to "unlabeled" --------------------------mapped
-  10: 1     # "car"
-  11: 2     # "bicycle"
-  13: 5     # "bus" mapped to "other-vehicle" --------------------------mapped
-  15: 3     # "motorcycle"
-  16: 5     # "on-rails" mapped to "other-vehicle" ---------------------mapped
-  18: 4     # "truck"
-  20: 5     # "other-vehicle"
-  30: 6     # "person"
-  31: 7     # "bicyclist"
-  32: 8     # "motorcyclist"
-  40: 9     # "road"
-  44: 10    # "parking"
-  48: 11    # "sidewalk"
-  49: 12    # "other-ground"
-  50: 13    # "building"
-  51: 14    # "fence"
-  52: 0     # "other-structure" mapped to "unlabeled" ------------------mapped
-  60: 9     # "lane-marking" to "road" ---------------------------------mapped
-  70: 15    # "vegetation"
-  71: 16    # "trunk"
-  72: 17    # "terrain"
-  80: 18    # "pole"
-  81: 19    # "traffic-sign"
-  99: 0     # "other-object" to "unlabeled" ----------------------------mapped
-  252: 1    # "moving-car" to "car" ------------------------------------mapped
-  253: 7    # "moving-bicyclist" to "bicyclist" ------------------------mapped
-  254: 6    # "moving-person" to "person" ------------------------------mapped
-  255: 8    # "moving-motorcyclist" to "motorcyclist" ------------------mapped
-  256: 5    # "moving-on-rails" mapped to "other-vehicle" --------------mapped
-  257: 5    # "moving-bus" mapped to "other-vehicle" -------------------mapped
-  258: 4    # "moving-truck" to "truck" --------------------------------mapped
-  259: 5    # "moving-other"-vehicle to "other-vehicle" ----------------mapped
-learning_map_inv: # inverse of previous map
-  0: 0      # "unlabeled", and others ignored
-  1: 10     # "car"
-  2: 11     # "bicycle"
-  3: 15     # "motorcycle"
-  4: 18     # "truck"
-  5: 20     # "other-vehicle"
-  6: 30     # "person"
-  7: 31     # "bicyclist"
-  8: 32     # "motorcyclist"
-  9: 40     # "road"
-  10: 44    # "parking"
-  11: 48    # "sidewalk"
-  12: 49    # "other-ground"
-  13: 50    # "building"
-  14: 51    # "fence"
-  15: 70    # "vegetation"
-  16: 71    # "trunk"
-  17: 72    # "terrain"
-  18: 80    # "pole"
-  19: 81    # "traffic-sign"
+  0: 4    # 원래 unlabeled -> 4: unlabeled
+  1: 4    # 원래 outlier -> 4: unlabeled
+  10: 0   # 원래 car -> 0: car
+  11: 1   # 원래 bicycle -> 1: other-vehicle
+  13: 1   # 원래 bus -> 1: other-vehicle
+  15: 1   # 원래 motorcycle -> 1: other-vehicle
+  16: 1   # 원래 on-rails -> 1: other-vehicle
+  18: 1   # 원래 truck -> 1: other-vehicle
+  20: 1   # 원래 other-vehicle -> 1: other-vehicle
+  30: 4   # 원래 person -> 4: unlabeled
+  31: 4   # 원래 bicyclist -> 4: unlabeled
+  32: 4   # 원래 motorcyclist -> 4: unlabeled
+  40: 2   # 원래 road -> 2: road
+  44: 2   # 원래 parking -> 2: road
+  48: 3   # 원래 sidewalk -> 3: sidewalk
+  49: 3   # 원래 other-ground -> 3: sidewalk
+  50: 4   # 원래 building -> 4: unlabeled
+  51: 4   # 원래 fence -> 4: unlabeled
+  52: 4   # 원래 other-structure -> 4: unlabeled
+  60: 2   # 원래 lane-marking -> 2: road
+  70: 4   # 원래 vegetation -> 4: unlabeled
+  71: 4   # 원래 trunk -> 4: unlabeled
+  72: 4   # 원래 terrain -> 4: unlabeled
+  80: 4   # 원래 pole -> 4: unlabeled
+  81: 4   # 원래 traffic-sign -> 4: unlabeled
+  99: 4   # 원래 other-object -> 4: unlabeled
+  252: 0  # 원래 moving-car -> 0: car
+  253: 1  # 원래 moving-bicyclist -> 1: other-vehicle
+  254: 4  # 원래 moving-person -> 4: unlabeled
+  255: 1  # 원래 moving-motorcyclist -> 1: other-vehicle
+  256: 1  # 원래 moving-on-rails -> 1: other-vehicle
+  257: 1  # 원래 moving-bus -> 1: other-vehicle
+  258: 1  # 원래 moving-truck -> 1: other-vehicle
+  259: 1  # 원래 moving-other-vehicle -> 1: other-vehicle
+learning_map_inv:
+  0: 10  # car -> car
+  1: 20  # other-vehicle -> other-vehicle
+  2: 40  # road -> road 
+  3: 48  # sidewalk -> sidewalk
+  4: 0   # unlabeled -> unlabeled
 learning_ignore: # Ignore classes
-  0: True      # "unlabeled", and others ignored
-  1: False     # "car"
-  2: False     # "bicycle"
-  3: False     # "motorcycle"
-  4: False     # "truck"
-  5: False     # "other-vehicle"
-  6: False     # "person"
-  7: False     # "bicyclist"
-  8: False     # "motorcyclist"
-  9: False     # "road"
-  10: False    # "parking"
-  11: False    # "sidewalk"
-  12: False    # "other-ground"
-  13: False    # "building"
-  14: False    # "fence"
-  15: False    # "vegetation"
-  16: False    # "trunk"
-  17: False    # "terrain"
-  18: False    # "pole"
-  19: False    # "traffic-sign"
+  0: False  # car
+  1: False  # other-vehicle
+  2: False  # road
+  3: False  # sidewalk
+  4: True   # unlabeled (일반적으로 unlabeled는 무시함)y
 split: # sequence numbers
   train:
     - 0

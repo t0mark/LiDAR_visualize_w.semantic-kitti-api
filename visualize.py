@@ -178,11 +178,16 @@ if __name__ == '__main__':
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
     color_dict = CFG["color_map"]
-    if FLAGS.color_learning_map:
-      learning_map_inv = CFG["learning_map_inv"]
-      learning_map = CFG["learning_map"]
-      color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
-
+    
+    # 색상 직접 설정 - config 파일과 무관하게 작동
+    color_dict = {
+        0: [255, 0, 0],    # 진한 파란색 (BGR)
+        1: [0, 255, 0],    # 진한 초록색 (BGR)
+        2: [0, 0, 255],    # 진한 빨간색 (BGR)
+        3: [0, 255, 255],  # 진한 노란색 (BGR)
+        4: [255, 255, 255]  # 흰색 (BGR)
+    }
+    
     scan = SemLaserScan(color_dict, project=True)
 
   # create a visualizer
