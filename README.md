@@ -21,6 +21,18 @@ pip3 install PyQt5-Qt5==5.15.2
 pip3 install PyQt5==5.15.4
 ```
 
+### 파일 구조
+```
+/sequnec_경로/
+          └── sequences/
+                 ├── 00/
+                 │     └── velodyne/
+                 │            ├ 000000.bin
+                 │            └ 000001.bin
+                 ├── 01/
+                 ├── 02/
+```
+
 ### 실행
 ``` bash
 # 추론 결과로 나온 데이터 형식
