@@ -164,6 +164,25 @@ class LaserScan:
     self.proj_remission[proj_y, proj_x] = remission
     self.proj_idx[proj_y, proj_x] = indices
     self.proj_mask = (self.proj_idx > 0).astype(np.float32)
+  
+  def open_combined(self, filename):
+    """통합된 [x, y, z, intensity, label] 형태의 파일을 열고 처리합니다"""
+    # 기존 데이터 초기화
+    self.reset()
+
+    # 파일 유효성 검사
+    if not isinstance(filename, str):
+        raise TypeError("Filename should be string type, "
+                       f"but was {type(filename)}")
+
+    # 파일 로드
+    scan = np.fromfile(filename, dtype=np.float32)
+    scan = scan.reshape((-1, 5))  # x, y, z, intensity, label
+
+    # 포인트 데이터 설정
+    points = scan[:, 0:3]    # xyz 좌표
+    remissions = scan[:, 3]  # intensity
+    self.set_points(points, remissions)
 
 
 class SemLaserScan(LaserScan):
@@ -276,3 +295,16 @@ class SemLaserScan(LaserScan):
     # instances
     self.proj_inst_label[mask] = self.inst_label[self.proj_idx[mask]]
     self.proj_inst_color[mask] = self.inst_color_lut[self.inst_label[self.proj_idx[mask]]]
+  
+  def open_combined(self, filename):
+    """통합된 [x, y, z, intensity, label] 형태의 파일을 열고 처리합니다"""
+    # 부모 클래스(LaserScan)의 open_combined 메서드 호출하여 포인트 데이터 처리
+    super().open_combined(filename)
+    
+    # 레이블 데이터 처리 추가
+    scan = np.fromfile(filename, dtype=np.float32)
+    scan = scan.reshape((-1, 5))
+    
+    # 마지막 열을 레이블로 변환
+    labels = scan[:, 4].astype(np.uint32)
+    self.set_label(labels)

@@ -12,7 +12,7 @@ class LaserScanVis:
   """Class that creates and handles a visualizer for a pointcloud"""
 
   def __init__(self, scan, scan_names, label_names, offset=0,
-               semantics=True, instances=False, images=True, link=False):
+               semantics=True, instances=False, images=True, link=False, combined=False):
     self.scan = scan
     self.scan_names = scan_names
     self.label_names = label_names
@@ -22,6 +22,7 @@ class LaserScanVis:
     self.instances = instances
     self.images = images
     self.link = link
+    self.combined = combined  # combined 플래그 저장
     # sanity check
     if not self.semantics and self.instances:
       print("Instances are only allowed in when semantics=True")
@@ -131,11 +132,16 @@ class LaserScanVis:
 
     return color_range.reshape(256, 3).astype(np.float32) / 255.0
   def update_scan(self):
-    # first open data
-    self.scan.open_scan(self.scan_names[self.offset])
-    if self.semantics:
-      self.scan.open_label(self.label_names[self.offset])
+    # 통합 파일을 사용할 경우
+    if hasattr(self, 'combined') and self.combined:
+      self.scan.open_combined(self.scan_names[self.offset])
       self.scan.colorize()
+    else:
+      # 기존 방식으로 처리
+      self.scan.open_scan(self.scan_names[self.offset])
+      if self.semantics:
+        self.scan.open_label(self.label_names[self.offset])
+        self.scan.colorize()
 
     # then change names
     title = "scan " + str(self.offset)

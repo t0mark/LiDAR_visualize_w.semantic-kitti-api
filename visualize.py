@@ -97,6 +97,13 @@ if __name__ == '__main__':
     action='store_true',
     help='Apply learning map to color map: visualize only classes that were trained on',
   )
+  parser.add_argument(
+    '--combined',
+    dest='combined',
+    default=False,
+    action='store_true',
+    help='Use combined scan files with labels [x,y,z,intensity,label]. Defaults to %(default)s',
+  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -142,13 +149,13 @@ if __name__ == '__main__':
   scan_names.sort()
 
   # does sequence folder exist?
-  if not FLAGS.ignore_semantics:
+  if not FLAGS.ignore_semantics and not FLAGS.combined:  # combined 옵션일 때는 레이블 폴더 검사 건너뜀
     if FLAGS.predictions is not None:
       label_paths = os.path.join(FLAGS.predictions, "sequences",
-                                 FLAGS.sequence, "predictions")
+                                FLAGS.sequence, "predictions")
     else:
       label_paths = os.path.join(FLAGS.dataset, "sequences",
-                                 FLAGS.sequence, "labels")
+                                FLAGS.sequence, "labels")
     if os.path.isdir(label_paths):
       print(f"Labels folder {label_paths} exists! Using labels from {label_paths}")
     else:
@@ -156,6 +163,8 @@ if __name__ == '__main__':
       quit()
 
     # populate the pointclouds
+    label_names = None  # 기본값으로 None 설정
+  if not FLAGS.ignore_semantics and not FLAGS.combined:  # combined 옵션이 아닐 때만 실행
     label_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(
         os.path.expanduser(label_paths)) for f in fn]
     label_names.sort()
@@ -180,13 +189,26 @@ if __name__ == '__main__':
   semantics = not FLAGS.ignore_semantics
   instances = FLAGS.do_instances
   images = not FLAGS.ignore_images
-  if not semantics:
+  # if not semantics:
+  #   label_names = None
+  # vis = LaserScanVis(scan=scan,
+  #                    scan_names=scan_names,
+  #                    label_names=label_names,
+  #                    offset=FLAGS.offset,
+  #                    semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link)
+  # combined 파일 형식 사용 시 label_names 무시
+  if FLAGS.combined or not semantics:
     label_names = None
+
   vis = LaserScanVis(scan=scan,
-                     scan_names=scan_names,
-                     label_names=label_names,
+                    scan_names=scan_names,
+                    label_names=label_names,
                      offset=FLAGS.offset,
-                     semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link)
+                    semantics=semantics, 
+                    instances=instances and semantics, 
+                    images=images, 
+                    link=FLAGS.link,
+                    combined=FLAGS.combined) 
 
   # print instructions
   print("To navigate:")
