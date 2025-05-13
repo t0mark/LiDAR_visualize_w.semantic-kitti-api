@@ -50,40 +50,40 @@ content: # as a ratio with the total number of points
 # classes that are indistinguishable from single scan or inconsistent in
 # ground truth are mapped to their closest equivalent
 learning_map:
-  0: 4    # unlabeled -> 4: unlabeled
-  1: 4    # outlier -> 4: unlabeled
-  10: 0   # car -> 0: car
-  11: 1   # bicycle -> 1: other-vehicle
-  13: 1   # bus -> 1: other-vehicle
-  15: 1   # motorcycle -> 1: other-vehicle
-  16: 1   # on-rails -> 1: other-vehicle
-  18: 0   # truck -> 1: other-vehicle
-  20: 1   # other-vehicle -> 1: other-vehicle
-  30: 4   # person -> 1: other-vehicle
-  31: 4   # bicyclist -> 1: other-vehicle
-  32: 4   # motorcyclist -> 1: other-vehicle
-  40: 2   # road -> 2: road
-  44: 2   # parking -> 2: road
-  48: 3   # sidewalk -> 3: sidewalk
-  49: 3   # other-ground -> 3: sidewalk
-  50: 4   # building -> 4: unlabeled
-  51: 4   # fence -> 4: unlabeled
-  52: 4   # other-structure -> 4: unlabeled
-  60: 2   # lane-marking -> 2: road
-  70: 4   # vegetation -> 4: unlabeled
-  71: 4   # trunk -> 4: unlabeled
-  72: 4   # terrain -> 4: unlabeled
-  80: 4   # pole -> 4: unlabeled
-  81: 4   # traffic-sign -> 4: unlabeled
-  99: 4   # other-object -> 4: unlabeled
-  252: 0  # moving-car -> 0: car
-  253: 1  # moving-bicyclist -> 1: other-vehicle
-  254: 4  # moving-person -> 4: unlabeled
-  255: 1  # moving-motorcyclist -> 1: other-vehicle
-  256: 1  # moving-on-rails -> 1: other-vehicle
-  257: 1  # moving-bus -> 1: other-vehicle
-  258: 1  # moving-truck -> 1: other-vehicle
-  259: 1  # moving-other-vehicle -> 1: other-vehicle
+  0: 4    # unlabeled                   -> 4: unlabeled
+  1: 4    # outlier                     -> 4: unlabeled
+  10: 0   # car                         -> 0: car
+  11: 1   # bicycle                     -> 1: other-vehicle
+  13: 1   # bus                         -> 1: other-vehicle
+  15: 1   # motorcycle                  -> 1: other-vehicle
+  16: 1   # on-rails                    -> 1: other-vehicle
+  18: 0   # truck                       -> 0: car
+  20: 1   # other-vehicle               -> 1: other-vehicle
+  30: 4   # person                      -> 1: other-vehicle
+  31: 4   # bicyclist                   -> 1: other-vehicle
+  32: 4   # motorcyclist                -> 1: other-vehicle
+  40: 2   # road                        -> 2: road
+  44: 2   # parking                     -> 2: road
+  48: 3   # sidewalk                    -> 3: sidewalk
+  49: 4   # other-ground                -> 3: unlabeled
+  50: 4   # building                    -> 4: unlabeled
+  51: 4   # fence                       -> 4: unlabeled
+  52: 4   # other-structure             -> 4: unlabeled
+  60: 2   # lane-marking                -> 2: road
+  70: 4   # vegetation                  -> 4: unlabeled
+  71: 4   # trunk                       -> 4: unlabeled
+  72: 4   # terrain                     -> 4: unlabeled
+  80: 4   # pole                        -> 4: unlabeled
+  81: 4   # traffic-sign                -> 4: unlabeled
+  99: 4   # other-object                -> 4: unlabeled
+  252: 0  # moving-car                  -> 0: car
+  253: 1  # moving-bicyclist            -> 1: other-vehicle
+  254: 1  # moving-person               -> 1: other-vehicle
+  255: 1  # moving-motorcyclist         -> 1: other-vehicle
+  256: 1  # moving-on-rails             -> 1: other-vehicle
+  257: 1  # moving-bus                  -> 1: other-vehicle
+  258: 0  # moving-truck                -> 0: car
+  259: 1  # moving-other-vehicle        -> 1: other-vehicle
 learning_map_inv:
   0: 10  # car -> car
   1: 20  # other-vehicle -> other-vehicle
