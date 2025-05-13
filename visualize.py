@@ -101,8 +101,9 @@ if __name__ == '__main__':
     '--combined',
     dest='combined',
     default=False,
+    required=False,
     action='store_true',
-    help='Use combined scan files with labels [x,y,z,intensity,label]. Defaults to %(default)s',
+    help='Use combined mode without label mapping.'
   )
   FLAGS, unparsed = parser.parse_known_args()
 
@@ -149,71 +150,61 @@ if __name__ == '__main__':
   scan_names.sort()
 
   # does sequence folder exist?
-  if not FLAGS.ignore_semantics and not FLAGS.combined:  # combined 옵션일 때는 레이블 폴더 검사 건너뜀
+  if not FLAGS.ignore_semantics:
     if FLAGS.predictions is not None:
       label_paths = os.path.join(FLAGS.predictions, "sequences",
-                                FLAGS.sequence, "predictions")
+                               FLAGS.sequence, "predictions")
     else:
       label_paths = os.path.join(FLAGS.dataset, "sequences",
-                                FLAGS.sequence, "labels")
-    if os.path.isdir(label_paths):
-      print(f"Labels folder {label_paths} exists! Using labels from {label_paths}")
+                               FLAGS.sequence, "labels")
+    
+    # 여기에 combined 모드 확인 추가
+    if FLAGS.combined:
+      # combined 모드에서는 labels 폴더가 없어도 됨
+      print("Combined mode: Using labels from .bin files directly")
+      # 빈 라벨 이름 목록을 만듭니다 - 실제로는 사용되지 않지만 코드 호환성을 위해
+      label_names = [None] * len(scan_names)
     else:
-      print(f"Labels folder {label_paths} doesn't exist! Exiting...")
-      quit()
+      # 기존 코드: labels 폴더가 있는지 확인
+      if os.path.isdir(label_paths):
+        print(f"Labels folder {label_paths} exists! Using labels from {label_paths}")
+      else:
+        print(f"Labels folder {label_paths} doesn't exist! Exiting...")
+        quit()
 
-    # populate the pointclouds
-    label_names = None  # 기본값으로 None 설정
-  if not FLAGS.ignore_semantics and not FLAGS.combined:  # combined 옵션이 아닐 때만 실행
-    label_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(
-        os.path.expanduser(label_paths)) for f in fn]
-    label_names.sort()
+      # 기존 코드: 라벨 파일 목록 가져오기
+      label_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(
+          os.path.expanduser(label_paths)) for f in fn]
+      label_names.sort()
 
-    # check that there are same amount of labels and scans
-    if not FLAGS.ignore_safety:
-      assert(len(label_names) == len(scan_names))
+      # 안전성 확인 (필요한 경우)
+      if not FLAGS.ignore_safety:
+        assert(len(label_names) == len(scan_names))
 
   # create a scan
   if FLAGS.ignore_semantics:
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
     color_dict = CFG["color_map"]
-    
-    # 색상 직접 설정 - config 파일과 무관하게 작동
-    color_dict = {
-        0: [255, 0, 0],    # 진한 파란색 (BGR)
-        1: [0, 255, 0],    # 진한 초록색 (BGR)
-        2: [0, 0, 255],    # 진한 빨간색 (BGR)
-        3: [0, 255, 255],  # 진한 노란색 (BGR)
-        4: [255, 255, 255]  # 흰색 (BGR)
-    }
-    
+    if FLAGS.color_learning_map:
+      learning_map_inv = CFG["learning_map_inv"]
+      learning_map = CFG["learning_map"]
+      color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
+
     scan = SemLaserScan(color_dict, project=True)
 
   # create a visualizer
   semantics = not FLAGS.ignore_semantics
   instances = FLAGS.do_instances
   images = not FLAGS.ignore_images
-  # if not semantics:
-  #   label_names = None
-  # vis = LaserScanVis(scan=scan,
-  #                    scan_names=scan_names,
-  #                    label_names=label_names,
-  #                    offset=FLAGS.offset,
-  #                    semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link)
-  # combined 파일 형식 사용 시 label_names 무시
-  if FLAGS.combined or not semantics:
+  if not semantics:
     label_names = None
-
   vis = LaserScanVis(scan=scan,
-                    scan_names=scan_names,
-                    label_names=label_names,
+                     scan_names=scan_names,
+                     label_names=label_names,
                      offset=FLAGS.offset,
-                    semantics=semantics, 
-                    instances=instances and semantics, 
-                    images=images, 
-                    link=FLAGS.link,
-                    combined=FLAGS.combined) 
+                     semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link,
+                     combined=FLAGS.combined)
 
   # print instructions
   print("To navigate:")

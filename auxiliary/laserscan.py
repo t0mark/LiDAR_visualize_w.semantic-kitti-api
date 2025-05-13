@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import yaml
 
 
 class LaserScan:
@@ -12,7 +13,11 @@ class LaserScan:
     self.proj_W = W
     self.proj_fov_up = fov_up
     self.proj_fov_down = fov_down
+    self.combined = False
     self.reset()
+
+  def set_combined(self, combined):
+    self.combined = combined
 
   def reset(self):
     """ Reset scan members. """
@@ -71,12 +76,25 @@ class LaserScan:
 
     # if all goes well, open pointcloud
     scan = np.fromfile(filename, dtype=np.float32)
-    scan = scan.reshape((-1, 4))
-
-    # put in attribute
-    points = scan[:, 0:3]    # get xyz
-    remissions = scan[:, 3]  # get remission
-    self.set_points(points, remissions)
+    
+    # Combined 모드에서는 다른 방식으로 처리 (bin 파일에서 라벨까지 읽기)
+    if self.combined:
+      # [x, y, z, intensity, label] 형식으로 파일을 해석
+      scan = scan.reshape((-1, 5))
+      points = scan[:, 0:3]    # get xyz
+      remissions = scan[:, 3]  # get remission
+      # 라벨도 바로 설정 (uint32로 변환)
+      labels = scan[:, 4].astype(np.uint32)
+      self.set_points(points, remissions)
+      # SemLaserScan이 존재하면 라벨 설정
+      if hasattr(self, 'set_label'):
+        self.set_label(labels)
+      else:
+        # 기존 방식: [x, y, z, intensity] 형식으로 파일을 해석
+        scan = scan.reshape((-1, 4))
+        points = scan[:, 0:3]    # get xyz
+        remissions = scan[:, 3]  # get remission
+        self.set_points(points, remissions)
 
   def set_points(self, points, remissions=None):
     """ Set scan attributes (instead of opening from file)
@@ -164,25 +182,6 @@ class LaserScan:
     self.proj_remission[proj_y, proj_x] = remission
     self.proj_idx[proj_y, proj_x] = indices
     self.proj_mask = (self.proj_idx > 0).astype(np.float32)
-  
-  def open_combined(self, filename):
-    """통합된 [x, y, z, intensity, label] 형태의 파일을 열고 처리합니다"""
-    # 기존 데이터 초기화
-    self.reset()
-
-    # 파일 유효성 검사
-    if not isinstance(filename, str):
-        raise TypeError("Filename should be string type, "
-                       f"but was {type(filename)}")
-
-    # 파일 로드
-    scan = np.fromfile(filename, dtype=np.float32)
-    scan = scan.reshape((-1, 5))  # x, y, z, intensity, label
-
-    # 포인트 데이터 설정
-    points = scan[:, 0:3]    # xyz 좌표
-    remissions = scan[:, 3]  # intensity
-    self.set_points(points, remissions)
 
 
 class SemLaserScan(LaserScan):
@@ -190,27 +189,29 @@ class SemLaserScan(LaserScan):
   EXTENSIONS_LABEL = ['.label']
 
   def __init__(self, sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0):
-      super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
-      self.reset()
+    super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
+    self.reset()
+    self.combined = False
 
-      # make semantic colors - 충분히 큰 크기로 설정
-      max_sem_key = 260  # 최대 레이블 값(259)보다 크게 설정
-      self.sem_color_lut = np.zeros((max_sem_key, 3), dtype=np.float32)
-      
-      # 기본값으로 모든 색상을 검정색으로 설정
-      self.sem_color_lut[:] = np.array([0, 0, 0], np.float32)
-      
-      # config에서 정의한 색상만 설정
-      for key, value in sem_color_dict.items():
-        self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
+    # make semantic colors
+    max_sem_key = 0
+    for key, data in sem_color_dict.items():
+      if key + 1 > max_sem_key:
+        max_sem_key = key + 1
+    self.sem_color_lut = np.zeros((max_sem_key + 100, 3), dtype=np.float32)
+    for key, value in sem_color_dict.items():
+      self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
 
-      # make instance colors - 이 부분이 누락되었습니다
-      max_inst_id = 100000
-      self.inst_color_lut = np.random.uniform(low=0.0,
+    # make instance colors
+    max_inst_id = 100000
+    self.inst_color_lut = np.random.uniform(low=0.0,
                                             high=1.0,
                                             size=(max_inst_id, 3))
-      # force zero to a gray-ish color
-      self.inst_color_lut[0] = np.full((3), 0.1)
+    # force zero to a gray-ish color
+    self.inst_color_lut[0] = np.full((3), 0.1)
+  
+  def set_combined(self, combined):
+    self.combined = combined
 
   def reset(self):
     """ Reset scan members. """
@@ -256,23 +257,39 @@ class SemLaserScan(LaserScan):
     self.set_label(label)
 
   def set_label(self, label):
-    """ Set points for label not from file but from np
-    """
+    """Set points for label not from file but from np"""
     # check label makes sense
     if not isinstance(label, np.ndarray):
       raise TypeError("Label should be numpy array")
 
     # only fill in attribute if the right size
     if label.shape[0] == self.points.shape[0]:
+      # 이미 uint32 형식이 아니라면 변환
+      if label.dtype != np.uint32:
+        label = label.astype(np.uint32)
+        
       self.sem_label = label & 0xFFFF  # semantic label in lower half
       self.inst_label = label >> 16    # instance id in upper half
+      
+      # combined 모드가 아닐 때만 매핑 적용
+      if not self.combined:
+        # 여기에 라벨 매핑 코드를 추가합니다
+        import yaml
+        with open("config/semantic-kitti.yaml", 'r') as yaml_file:
+          CFG = yaml.safe_load(yaml_file)
+          learning_map = CFG["learning_map"]
+            
+        # 매핑 적용
+        mapped_label = np.copy(self.sem_label)
+        for key, val in learning_map.items():
+          mapped_label[self.sem_label == key] = val
+            
+        # 원본 라벨을 매핑된 라벨로 교체
+        self.sem_label = mapped_label
     else:
       print("Points shape: ", self.points.shape)
       print("Label shape: ", label.shape)
       raise ValueError("Scan and Label don't contain same number of points")
-
-    # sanity check
-    assert((self.sem_label + (self.inst_label << 16) == label).all())
 
     if self.project:
       self.do_label_projection()
@@ -297,16 +314,3 @@ class SemLaserScan(LaserScan):
     # instances
     self.proj_inst_label[mask] = self.inst_label[self.proj_idx[mask]]
     self.proj_inst_color[mask] = self.inst_color_lut[self.inst_label[self.proj_idx[mask]]]
-  
-  def open_combined(self, filename):
-    """통합된 [x, y, z, intensity, label] 형태의 파일을 열고 처리합니다"""
-    # 부모 클래스(LaserScan)의 open_combined 메서드 호출하여 포인트 데이터 처리
-    super().open_combined(filename)
-    
-    # 레이블 데이터 처리 추가
-    scan = np.fromfile(filename, dtype=np.float32)
-    scan = scan.reshape((-1, 5))
-    
-    # 마지막 열을 레이블로 변환
-    labels = scan[:, 4].astype(np.uint32)
-    self.set_label(labels)

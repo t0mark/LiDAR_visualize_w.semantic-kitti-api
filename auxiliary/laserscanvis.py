@@ -22,11 +22,14 @@ class LaserScanVis:
     self.instances = instances
     self.images = images
     self.link = link
-    self.combined = combined  # combined 플래그 저장
+    self.combined = combined
     # sanity check
     if not self.semantics and self.instances:
       print("Instances are only allowed in when semantics=True")
       raise ValueError
+    
+    if hasattr(self.scan, 'set_combined'):
+      self.scan.set_combined(self.combined)
 
     self.reset()
     self.update_scan()
@@ -131,17 +134,17 @@ class LaserScanVis:
     color_range = sm.to_rgba(np.linspace(0, 1, 256), bytes=True)[:, 2::-1]
 
     return color_range.reshape(256, 3).astype(np.float32) / 255.0
+  
   def update_scan(self):
-    # 통합 파일을 사용할 경우
-    if hasattr(self, 'combined') and self.combined:
-      self.scan.open_combined(self.scan_names[self.offset])
+    # first open data
+    self.scan.open_scan(self.scan_names[self.offset])
+
+    # combined 모드가 아닐 때만 별도로 라벨 파일 로드
+    if self.semantics and not self.combined:
+      self.scan.open_label(self.label_names[self.offset])
+
+    if self.semantics:
       self.scan.colorize()
-    else:
-      # 기존 방식으로 처리
-      self.scan.open_scan(self.scan_names[self.offset])
-      if self.semantics:
-        self.scan.open_label(self.label_names[self.offset])
-        self.scan.colorize()
 
     # then change names
     title = "scan " + str(self.offset)
