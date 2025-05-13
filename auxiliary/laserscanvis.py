@@ -140,7 +140,7 @@ class LaserScanVis:
     self.scan.open_scan(self.scan_names[self.offset])
 
     # combined 모드가 아닐 때만 별도로 라벨 파일 로드
-    if self.semantics and not self.combined:
+    if self.semantics and not (hasattr(self.scan, 'combined') and self.scan.combined):
       self.scan.open_label(self.label_names[self.offset])
 
     if self.semantics:

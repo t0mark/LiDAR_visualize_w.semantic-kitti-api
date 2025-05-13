@@ -182,6 +182,7 @@ if __name__ == '__main__':
         assert(len(label_names) == len(scan_names))
 
   # create a scan
+  # visualize.py 파일에서 scan 객체 생성 부분 수정 
   if FLAGS.ignore_semantics:
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
@@ -192,6 +193,10 @@ if __name__ == '__main__':
       color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
 
     scan = SemLaserScan(color_dict, project=True)
+    
+  # scan 객체에 combined 옵션 설정 (여기에 추가)
+  if hasattr(scan, 'set_combined'):
+    scan.set_combined(FLAGS.combined)
 
   # create a visualizer
   semantics = not FLAGS.ignore_semantics

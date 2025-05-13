@@ -77,8 +77,8 @@ class LaserScan:
     # if all goes well, open pointcloud
     scan = np.fromfile(filename, dtype=np.float32)
     
-    # Combined 모드에서는 다른 방식으로 처리 (bin 파일에서 라벨까지 읽기)
-    if self.combined:
+    # combined 모드 처리
+    if hasattr(self, 'combined') and self.combined:
       # [x, y, z, intensity, label] 형식으로 파일을 해석
       scan = scan.reshape((-1, 5))
       points = scan[:, 0:3]    # get xyz
@@ -86,15 +86,15 @@ class LaserScan:
       # 라벨도 바로 설정 (uint32로 변환)
       labels = scan[:, 4].astype(np.uint32)
       self.set_points(points, remissions)
-      # SemLaserScan이 존재하면 라벨 설정
+      # SemLaserScan인 경우 라벨 설정
       if hasattr(self, 'set_label'):
         self.set_label(labels)
-      else:
-        # 기존 방식: [x, y, z, intensity] 형식으로 파일을 해석
-        scan = scan.reshape((-1, 4))
-        points = scan[:, 0:3]    # get xyz
-        remissions = scan[:, 3]  # get remission
-        self.set_points(points, remissions)
+    else:
+      # 기존 방식: [x, y, z, intensity] 형식으로 파일을 해석
+      scan = scan.reshape((-1, 4))
+      points = scan[:, 0:3]    # get xyz
+      remissions = scan[:, 3]  # get remission
+      self.set_points(points, remissions)
 
   def set_points(self, points, remissions=None):
     """ Set scan attributes (instead of opening from file)
