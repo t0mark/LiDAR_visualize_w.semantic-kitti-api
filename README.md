@@ -10,8 +10,8 @@
 
 ### 환경
 - Unbuntu 20.04 LTS
-- CUDA : 11.1
-- NVIDIA 드라이버 : 470.256.02
+- CUDA : 11.2
+- NVIDIA 드라이버 : 470.256.
 
 ### build
 ``` bash
