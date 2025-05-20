@@ -26,18 +26,18 @@ pip3 install PyQt5==5.15.4
 - config/ 파일 참조
 ```
 /lidar_data_path
-  ├── 00/
-  │       ├── velodyne/
-  │       │       ├ 000000.bin
-  │       │       └ 000001.bin
-  │       └── labels/
-  │                  ├ 000000.label
-  │                  └ 000001.label
-  ├── 01/
-  │       ├── ouster/
-  │       │       ├ 000000.bin
-  │       │       └ 000001.bin
-  ├── 02/
+    ├── 00/
+    │   ├── velodyne/
+    │   │   ├ 000000.bin
+    │   │   └ 000001.bin
+    │   └── labels/
+    │        ├ 000000.label
+    │        └ 000001.label
+    ├── 01/
+    │   ├── ouster/
+    │   │   ├ 000000.bin
+    │   │   └ 000001.bin
+    ├── 02/
 ```
 
 ### 실행
