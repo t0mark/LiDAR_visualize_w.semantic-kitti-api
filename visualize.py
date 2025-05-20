@@ -43,7 +43,7 @@ if __name__ == '__main__':
         default=False,
         required=False,
         action='store_true',
-        help='특정 클래스만 표현 (YAML 파일의 learning_map 사용)'
+        help='특정 클래스만 표현 (YAML 파일의 label_map 사용)'
     )
     FLAGS, unparsed = parser.parse_known_args()
 
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     )
     scan.set_combined(FLAGS.combined)
     scan.set_mapping(FLAGS.mapping)
-    scan.set_learning_map(CFG["learning_map"])
+    scan.set_label_map(CFG["label_map"])
 
     # visualizer 객체 생성
     vis = LaserScanVis(

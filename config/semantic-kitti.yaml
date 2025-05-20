@@ -86,12 +86,12 @@ color_map:
 mapping_color_map:
     0 : [255, 255, 255]     # unlabeled
     1 : [0, 0, 255]         # road
-    2 : [255, 0, 255]       # sidewalk
+    2 : [0, 255, 255]       # sidewalk
     3 : [255, 0, 0]         # car
-    4 : [0, 0, 0]           # other-vehicle
+    4 : [0, 255, 0]           # other-vehicle
 
 
-learning_map:
+label_map:
     0: 0    # unlabeled                   -> 0: unlabeled
     1: 0    # outlier                     -> 0: unlabeled
     10: 3   # car                         -> 3: car
@@ -126,11 +126,3 @@ learning_map:
     257: 4  # moving-bus                  -> 4: other-vehicle
     258: 3  # moving-truck                -> 3: car
     259: 4  # moving-other-vehicle        -> 4: other-vehicle
-
-
-learning_map_inv:
-    0: 10  # car -> car
-    1: 20  # other-vehicle -> other-vehicle
-    2: 40  # road -> road 
-    3: 48  # sidewalk -> sidewalk
-    4: 0   # unlabeled -> unlabeled

@@ -212,8 +212,8 @@ class SemLaserScan(LaserScan):
         ## instance 미분류 -> 회색
         self.inst_color_lut[0] = np.full((3), 0.1)
     
-    def set_learning_map(self, learning_map):
-        self.learning_map = learning_map
+    def set_label_map(self, label_map):
+        self.label_map = label_map
 
     # 새로운 LiDAR scan을 처리할 준비
     def reset(self):
@@ -284,7 +284,7 @@ class SemLaserScan(LaserScan):
         if self.mapping:
             # mapping 모드 처리: 원본 label -> [unlabeld, road, sidewalk, car, other-vehicle]
             mapped_label = np.copy(self.sem_label)
-            for key, val in self.learning_map.items():
+            for key, val in self.label_map.items():
                 mapped_label[self.sem_label == key] = val
             self.sem_label = mapped_label
 

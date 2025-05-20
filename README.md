@@ -22,25 +22,37 @@ pip3 install PyQt5==5.15.4
 ```
 
 ### 파일 구조
+- config 파일 및 실행 옵션에 따라 파일 구성
+- config/ 파일 참조
 ```
-/sequnec_경로/
-          └── sequences/
-                 ├── 00/
-                 │     └── velodyne/
-                 │            ├ 000000.bin
-                 │            └ 000001.bin
-                 ├── 01/
-                 ├── 02/
+/lidar_data_path
+  ├── 00/
+  │     ├── velodyne/
+  │     │     ├ 000000.bin
+  │     │     └ 000001.bin
+  │     └── labels/
+  │            ├ 000000.label
+  │            └ 000001.label
+  ├── 01/
+  │     ├── ouster/
+  │     │     ├ 000000.bin
+  │     │     └ 000001.bin
+  ├── 02/
 ```
 
 ### 실행
 ``` bash
-# 추론 결과로 나온 데이터 형식
-./visualize.py --sequence {sequnce 번호} --dataset {sequence 경로} --combined
+# [x, y, z, intensity, label] 데이터 형식
+./visualize.py -d {sequence 번호 경로} --combined
 
-# 기존 데이터 형식
-./visualize.py --sequence {sequnce 번호} --dataset {sequence 경로}
+# [x, y, z, intensity] 데이터 형식
+./visualize.py -d {sequence 번호 경로} --combined
+
+# config 파일의 label_map 사용
+## 원본 label 대신, 보고 싶은 label만 시각화할 때 사용
+./visualize.py -d {sequence 번호 경로} --mapping
 ```
+
 - 사용법
   - n: 다음 스캔
   - b: 이전 스캔
@@ -48,8 +60,8 @@ pip3 install PyQt5==5.15.4
 
 ### 결과
 - 흰색 : unlabeled
-- 파랑색 : car
-- 초록색 : other-vehicle
 - 빨강색 : road
 - 노랑색 : side-walk
+- 파랑색 : car
+- 초록색 : other-vehicle
   ![image](./docs/result.png)
