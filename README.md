@@ -27,16 +27,16 @@ pip3 install PyQt5==5.15.4
 ```
 /lidar_data_path
   ├── 00/
-  │     ├── velodyne/
-  │     │     ├ 000000.bin
-  │     │     └ 000001.bin
-  │     └── labels/
-  │            ├ 000000.label
-  │            └ 000001.label
+  │       ├── velodyne/
+  │       │       ├ 000000.bin
+  │       │       └ 000001.bin
+  │       └── labels/
+  │                  ├ 000000.label
+  │                  └ 000001.label
   ├── 01/
-  │     ├── ouster/
-  │     │     ├ 000000.bin
-  │     │     └ 000001.bin
+  │       ├── ouster/
+  │       │       ├ 000000.bin
+  │       │       └ 000001.bin
   ├── 02/
 ```
 
