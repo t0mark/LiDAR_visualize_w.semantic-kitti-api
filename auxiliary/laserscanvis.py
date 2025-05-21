@@ -16,14 +16,14 @@ class LaserScanVis:
                  scan_names, 
                  label_names,
                  label=True,
-                 combined=False,
+                 predictions=False,
                  mapping=False
                 ):
         self.scan = scan
         self.scan_names = scan_names
         self.label_names = label_names
         self.semantics = label
-        self.combined = combined
+        self.predictions = predictions
         self.mapping = mapping
         
         self.offset = 0
@@ -159,10 +159,10 @@ class LaserScanVis:
         ## 현재 scan 데이터 로드
         self.scan.open_scan(self.scan_names[self.offset])
 
-        ## combined 모드 처리
+        ## predictions 모드 처리
         if self.semantics:
-            if self.scan.combined:
-                pass
+            if self.scan.predictions:
+                self.scan.colorize()
             else:
                 self.scan.open_label(self.label_names[self.offset])
                 self.scan.colorize()

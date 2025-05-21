@@ -23,15 +23,23 @@ if __name__ == '__main__':
         help='데이터셋 설정 파일',
     )
     parser.add_argument(
-        '--ignore_label', '-i',
+        '--open-data',
+        type=str,
+        dest='open_data',
+        required=False,
+        default="",
+        help='오픈 데이터셋 지정',
+    )
+    parser.add_argument(
+        '--ignore-label', '-i',
         dest='ignore_label',
         default=False,
         action='store_true',
         help='Label 데이터 없이, LiDAR 데이터만 사용',
     )
     parser.add_argument(
-        '--combined',
-        dest='combined',
+        '--predictions',
+        dest='predictions',
         default=False,
         required=False,
         action='store_true',
@@ -56,15 +64,26 @@ if __name__ == '__main__':
 
     # 설정 파일 열기
     try:
-        print("Opening config file %s" % FLAGS.config)
+        print("설정 파일: %s" % FLAGS.config)
         CFG = yaml.safe_load(open(FLAGS.config, 'r'))
     except Exception as e:
         print(e)
-        print("Error opening yaml file.")
+        print("YAML 파일 오류")
+        quit()
+    
+    # 절대 설정 파일 (항상 사용)
+    try:
+        absolutely_CFG = yaml.safe_load(open('config/absolutely-config.yaml', 'r'))
+    except Exception as e:
+        print(e)
+        print("absolutely-YAML 파일 오류")
         quit()
 
     # LiDAR 폴더 확인
-    scan_paths = os.path.join(FLAGS.dataset, CFG["lidar"]["manufacturer"])
+    if FLAGS.predictions:
+        scan_paths = os.path.join(FLAGS.dataset, "predictions")
+    else:
+        scan_paths = os.path.join(FLAGS.dataset, CFG["lidar"]["manufacturer"])
     if os.path.isdir(scan_paths):
         print(f"{scan_paths} 사용 중...")
     else:
@@ -76,9 +95,10 @@ if __name__ == '__main__':
     scan_names.sort()
 
     # label 폴더 확인
-    if FLAGS.combined:
-        # combined 모드
-        print("Combined mode: [x, y, z, intensity, label] 형식 사용")
+    if FLAGS.predictions:
+        # predictions 모드
+        print("predictions mode: [x, y, z, intensity, label] 형식 사용")
+        label_names = []
     else:
         # labels 폴더 사용
         label_paths = os.path.join(FLAGS.dataset, "labels")
@@ -96,10 +116,17 @@ if __name__ == '__main__':
     ## color_dict 설정
     if FLAGS.mapping:
         # mapping 모드: 원본 label -> [unlabeld, road, sidewalk, car, other-vehicle]
-        color_dict = CFG["mapping_color_map"]
+        color_dict = absolutely_CFG["mapping_color_map"]
+        if FLAGS.open_data:
+            label_map = absolutely_CFG[FLAGS.open_data]["label_map"]
+        else:
+            label_map = CFG["label_map"]
     else:
         # 일반 모드: 원본 label 사용
-        color_dict = CFG["color_map"]
+        if FLAGS.open_data:
+            color_dict = absolutely_CFG[FLAGS.open_data]["color_map"]
+        else:
+            color_dict = CFG["color_map"]
     
     # LiDAR 정보 설정
     lidar = CFG["lidar"]
@@ -112,9 +139,10 @@ if __name__ == '__main__':
         fov_up=lidar["fov_up"], 
         fov_down=lidar["fov_down"]
     )
-    scan.set_combined(FLAGS.combined)
+    scan.set_combined(FLAGS.predictions)
     scan.set_mapping(FLAGS.mapping)
-    scan.set_label_map(CFG["label_map"])
+    if FLAGS.mapping:
+        scan.set_label_map(label_map)
 
     # visualizer 객체 생성
     vis = LaserScanVis(
@@ -122,7 +150,7 @@ if __name__ == '__main__':
         scan_names=scan_names,
         label_names=label_names,
         label = not FLAGS.ignore_label,
-        combined=FLAGS.combined,
+        predictions=FLAGS.predictions,
         mapping=FLAGS.mapping
     )
     

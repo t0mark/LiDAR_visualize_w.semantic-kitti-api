@@ -1,9 +1,12 @@
 # semantic-kitti-api 개량
 ### 내용
 - 개인 프로젝트의 필요에 맞춰 내용을 수정
-- 실행 옵션을 추가하여 [x, y, z, intensity, label] 형태의 데이터 처리 가능
+  - label: [car, other-vehicle, road, sidewalk, unlabeled] 확인
+  - 데이터 형식이 [x, y, z, intensity, label]인 경우 확인
 - semantic segmentation 된 결과를 확인하기 위한 도구
 - 학습 결과에 맞춰 색상 표현 변경
+  - 라벨이 몇 개든 어떤 모델이든 mapping 가능
+  - 설정 파일의 label_map 설정
 
 ### 참조
 - [semantic-kitti-api](https://github.com/PRBonn/semantic-kitti-api)
@@ -11,7 +14,7 @@
 ### 환경
 - Unbuntu 20.04 LTS
 - CUDA : 11.2
-- NVIDIA 드라이버 : 470.256.
+- NVIDIA 드라이버 : 470.256
 
 ### build
 ``` bash
@@ -42,15 +45,28 @@ pip3 install PyQt5==5.15.4
 
 ### 실행
 ``` bash
-# [x, y, z, intensity, label] 데이터 형식
-./visualize.py -d {sequence 번호 경로} --combined
+# .bin: [x, y, z, intensity], .label: [semantic label, instance label]
+./visualize.py \
+  -d {lidar_data_path/sequence 번호 경로} \
+  -c {config 경로}
 
-# [x, y, z, intensity] 데이터 형식
-./visualize.py -d {sequence 번호 경로} --combined
+# 오픈 데이터셋 label 사용 시 config 파일 간략화 (중복 제거)
+./visualize.py \
+  -d {lidar_data_path/sequence 번호 경로} \
+  -c {config 경로} \
+  --open-data {오픈 데이터셋 이름}
 
-# config 파일의 label_map 사용
-## 원본 label 대신, 보고 싶은 label만 시각화할 때 사용
-./visualize.py -d {sequence 번호 경로} --mapping
+# ./bin [x, y, z, intensity, label], .lael: 사용 X
+./visualize.py \
+  -d {lidar_data_path/sequence 번호 경로} \
+  -c {config 경로} \
+  --predictions
+
+# 프로젝트에 맞춘 라벨로 보기 [car, other-vehicle, road, sidewalk, unlabeled]
+./visualize.py \
+  -d {lidar_data_path/sequence 번호 경로} \
+  -c {config 경로} \
+  --mapping
 ```
 
 - 사용법
@@ -59,9 +75,9 @@ pip3 install PyQt5==5.15.4
   - esc 또는 q: 종료
 
 ### 결과
-- 흰색 : unlabeled
-- 빨강색 : road
-- 노랑색 : side-walk
 - 파랑색 : car
 - 초록색 : other-vehicle
+- 빨강색 : road
+- 노랑색 : side-walk
+- 흰색 : unlabeled
   ![image](./docs/result.png)

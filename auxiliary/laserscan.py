@@ -14,11 +14,12 @@ class LaserScan:
         self.proj_W = W
         self.proj_fov_up = fov_up
         self.proj_fov_down = fov_down
-        self.combined = False
+        self.predictions = False
+        self.mapping = False
         self.reset()
 
-    def set_combined(self, combined):
-        self.combined = combined
+    def set_combined(self, predictions):
+        self.predictions = predictions
 
     def set_mapping(self, mapping):
         self.mapping = mapping
@@ -76,8 +77,8 @@ class LaserScan:
 
         # 3. pointcloud 불러오기
         scan = np.fromfile(filename, dtype=np.float32)
-        if self.combined:
-            # combined 모드 처리: [x, y, z, intensity, label] 형식
+        if self.predictions:
+            # predictions 모드 처리: [x, y, z, intensity, label] 형식
             scan = scan.reshape((-1, 5))
             points = scan[:, 0:3]
             intensity = scan[:, 3]
@@ -188,8 +189,7 @@ class SemLaserScan(LaserScan):
 
     def __init__(self, sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0):
         super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
-        self.combined = False
-        self.mapping = False
+        self.label_map = {}
         self.reset()
 
         # 최대 클래스 ID 찾기
@@ -211,9 +211,6 @@ class SemLaserScan(LaserScan):
                                                 size=(max_inst_id, 3))
         ## instance 미분류 -> 회색
         self.inst_color_lut[0] = np.full((3), 0.1)
-    
-    def set_label_map(self, label_map):
-        self.label_map = label_map
 
     # 새로운 LiDAR scan을 처리할 준비
     def reset(self):
@@ -254,7 +251,7 @@ class SemLaserScan(LaserScan):
             raise RuntimeError("Filename extension is not valid label file.")
 
         # 2. label 불러오기
-        ## combined 모드는 open_scan에서 처리 (파일 두 번 읽기 방지)
+        ## predictions 모드는 open_scan에서 처리 (파일 두 번 읽기 방지)
         label = np.fromfile(filename, dtype=np.uint32)
         label = label.reshape((-1))
         self.set_label(label)
@@ -291,6 +288,10 @@ class SemLaserScan(LaserScan):
         # 5. 2D 투영 실행
         if self.project:
             self.do_label_projection()
+    
+    # 라벨 매핑 설정
+    def set_label_map(self, label_map):
+        self.label_map = label_map
 
     # 색상 할당
     def colorize(self):
