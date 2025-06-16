@@ -23,7 +23,7 @@ if __name__ == '__main__':
         help='데이터셋 설정 파일',
     )
     parser.add_argument(
-        '--open-data',
+        '--open-data', '--open_data',
         type=str,
         dest='open_data',
         required=False,
@@ -60,6 +60,8 @@ if __name__ == '__main__':
     print("INTERFACE:")
     print("Dataset", FLAGS.dataset)
     print("Config", FLAGS.config)
+    print("Open Data:", FLAGS.open_data)
+    print("Mapping:", FLAGS.mapping)
     print("*" * 80)
 
     # 설정 파일 열기

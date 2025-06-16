@@ -192,17 +192,19 @@ class SemLaserScan(LaserScan):
         self.label_map = {}
         self.reset()
 
-        # 최대 클래스 ID 찾기
+        # 최대 클래스 ID 찾기 (YAML 키를 정수로 변환)
         max_sem_key = 0
         for key, data in sem_color_dict.items():
-            if key + 1 > max_sem_key:
-                max_sem_key = key + 1
+            int_key = int(key)
+            if int_key + 1 > max_sem_key:
+                max_sem_key = int_key + 1
         
         # semantic color look-up 테이블 생성
         self.sem_color_lut = np.zeros((max_sem_key + 100, 3), dtype=np.float32)
         ## 각 클래스의 색상 정보 저장 (0 ~ 255 -> 0 ~ 1)
         for key, value in sem_color_dict.items():
-            self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
+            int_key = int(key)
+            self.sem_color_lut[int_key] = np.array(value, np.float32) / 255.0
 
         # instance label color look-up 테이블 생성
         max_inst_id = 100000
@@ -281,8 +283,14 @@ class SemLaserScan(LaserScan):
         if self.mapping:
             # mapping 모드 처리: 원본 label -> [unlabeld, road, sidewalk, car, other-vehicle]
             mapped_label = np.copy(self.sem_label)
+            
+            # 먼저 모든 라벨을 unlabeled(4)로 초기화
+            mapped_label[:] = 4
+            
+            # label_map에 정의된 라벨들만 매핑
             for key, val in self.label_map.items():
                 mapped_label[self.sem_label == key] = val
+                
             self.sem_label = mapped_label
 
         # 5. 2D 투영 실행

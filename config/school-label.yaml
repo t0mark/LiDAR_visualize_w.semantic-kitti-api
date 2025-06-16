@@ -1,0 +1,24 @@
+# LiDAR 정보
+lidar:
+    "manufacturer": "velodyne"
+    "H": 32
+    "W": 1024
+    "fov_up": 23.0
+    "fov_down": -23.0
+
+
+# 라벨 정보 (사용 X)
+# KITTI랑 동일
+labels:
+    0 : "unlabled"
+    1 : "car"
+    2 : "other-vehicle"
+    3 : "road"
+    4 : "sidewalk"
+
+color_map:
+    0 : [255, 255, 255]     # unlabeled
+    1 : [0, 0, 255]         # road
+    2 : [0, 255, 255]       # sidewalk
+    3 : [255, 0, 0]         # car
+    4 : [0, 255, 0]         # other-vehicle
